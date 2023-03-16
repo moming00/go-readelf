@@ -1,32 +1,4 @@
-// Copyright 2022-2023 The Parca Authors
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-
-// Copyright 2014 Google Inc. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-package elfreader
+package debuginfo
 
 import (
 	"bufio"
@@ -50,6 +22,7 @@ type ElfNote struct {
 }
 
 // ParseNotes returns the notes from a SHT_NOTE section or PT_NOTE segment.
+// https://docs.oracle.com/cd/E19957-01/806-0641/chapter6-18048/index.html
 func ParseNotes(reader io.Reader, alignment int, order binary.ByteOrder) ([]ElfNote, error) {
 	r := bufio.NewReader(reader)
 
@@ -93,8 +66,7 @@ func ParseNotes(reader io.Reader, alignment int, order binary.ByteOrder) ([]ElfN
 		// Drop padding bytes until the desc field.
 		for n := padding(len(noteHeader) + int(namesz)); n > 0; n-- {
 			if _, err := r.ReadByte(); err == io.EOF {
-				return nil, fmt.Errorf(
-					"missing %d bytes of padding after note name", n)
+				return nil, fmt.Errorf("missing %d bytes of padding after note name", n)
 			} else if err != nil {
 				return nil, err
 			}
